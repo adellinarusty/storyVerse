@@ -52,3 +52,17 @@ data class CandidatePayload(
 data class PromptFeedbackPayload(
     @Json(name = "blockReason") val blockReason: String? = null
 )
+
+@JsonClass(generateAdapter = true)
+data class ListModelsResponse(
+    @Json(name = "models") val models: List<GeminiModelInfo>? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class GeminiModelInfo(
+    @Json(name = "name") val name: String,
+    @Json(name = "displayName") val displayName: String? = null,
+    @Json(name = "description") val description: String? = null,
+    @Json(name = "supportedGenerationMethods") val supportedGenerationMethods: List<String>? = null
+)
+

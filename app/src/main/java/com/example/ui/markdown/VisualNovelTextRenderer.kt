@@ -17,15 +17,18 @@ import androidx.compose.ui.unit.sp
 
 /**
  * Parser Teks Chat & Cerita:
- * - Teks yang diapit tanda pagar (#teks#) dirender menjadi cetak miring (italic).
- * - Teks yang diapit tanda bintang (*teks* atau _teks_) juga didukung menjadi cetak miring (italic).
- * - Ukuran dan model font sama untuk semua teks agar bersih dan seragam.
+ * - Dialog Karakter: Ditampilkan dengan warna putih jernih terang (#FFFFFF) berbobot tegas (SemiBold untuk kutipan "..."), agar sangat kontras dan tidak bentrok dengan background cerita.
+ * - Tindakan & Deskripsi Suasana (#teks# atau *teks* atau _teks_): Dicetak miring (italic) dengan warna lavender lembut (#C7B9E5).
  */
 object VisualNovelTextRenderer {
 
+    val DIALOG_BRIGHT_COLOR = Color(0xFFFFFFFF)
+    val ACTION_SOFT_COLOR = Color(0xFFC7B9E5)
+
     fun parseChatText(
         rawText: String,
-        baseColor: Color = Color(0xFFF3EDF7)
+        baseColor: Color = DIALOG_BRIGHT_COLOR,
+        actionColor: Color = ACTION_SOFT_COLOR
     ): AnnotatedString {
         return buildAnnotatedString {
             val clean = rawText
@@ -36,7 +39,7 @@ object VisualNovelTextRenderer {
             val len = clean.length
 
             while (i < len) {
-                // 1. Cek tanda pagar #...# (WAJIB cetak miring)
+                // 1. Cek tanda pagar #...# (WAJIB cetak miring - tindakan/suasana)
                 if (clean[i] == '#' && i + 1 < len) {
                     val endHash = clean.indexOf('#', i + 1)
                     if (endHash != -1) {
@@ -44,7 +47,7 @@ object VisualNovelTextRenderer {
                         withStyle(
                             SpanStyle(
                                 fontStyle = FontStyle.Italic,
-                                color = baseColor
+                                color = actionColor
                             )
                         ) {
                             append(italicContent)
@@ -54,7 +57,7 @@ object VisualNovelTextRenderer {
                     }
                 }
 
-                // 2. Cek tanda bintang *...* atau garis bawah _..._ (cetak miring)
+                // 2. Cek tanda bintang *...* atau garis bawah _..._ (cetak miring - tindakan/suasana)
                 if ((clean[i] == '*' || clean[i] == '_') && i + 1 < len && clean[i + 1] != '*' && clean[i + 1] != '_') {
                     val delim = clean[i]
                     val endMark = clean.indexOf(delim, i + 1)
@@ -63,7 +66,7 @@ object VisualNovelTextRenderer {
                         withStyle(
                             SpanStyle(
                                 fontStyle = FontStyle.Italic,
-                                color = baseColor
+                                color = actionColor
                             )
                         ) {
                             append(italicContent)
@@ -73,8 +76,33 @@ object VisualNovelTextRenderer {
                     }
                 }
 
-                // 3. Karakter normal
-                append(clean[i])
+                // 3. Cek kutipan dialog "..." (dialog langsung karakter - putih terang mencolok & tebal)
+                if (clean[i] == '"' && i + 1 < len) {
+                    val endQuote = clean.indexOf('"', i + 1)
+                    if (endQuote != -1) {
+                        val quoteContent = clean.substring(i, endQuote + 1)
+                        withStyle(
+                            SpanStyle(
+                                color = Color(0xFFFFFFFF),
+                                fontWeight = FontWeight.SemiBold,
+                                fontStyle = FontStyle.Normal
+                            )
+                        ) {
+                            append(quoteContent)
+                        }
+                        i = endQuote + 1
+                        continue
+                    }
+                }
+
+                // 4. Karakter narasi/dialog lainnya (warna terang kontras tinggi)
+                withStyle(
+                    SpanStyle(
+                        color = baseColor
+                    )
+                ) {
+                    append(clean[i])
+                }
                 i++
             }
         }
@@ -85,9 +113,9 @@ object VisualNovelTextRenderer {
 fun FormattedChatMessageText(
     text: String,
     modifier: Modifier = Modifier,
-    textColor: Color = Color(0xFFF3EDF7),
+    textColor: Color = Color(0xFFFFFFFF),
     fontSize: TextUnit = 15.sp,
-    lineHeight: TextUnit = 22.sp
+    lineHeight: TextUnit = 23.sp
 ) {
     val annotatedString = remember(text, textColor) {
         VisualNovelTextRenderer.parseChatText(text, textColor)
@@ -101,3 +129,4 @@ fun FormattedChatMessageText(
         style = MaterialTheme.typography.bodyLarge
     )
 }
+

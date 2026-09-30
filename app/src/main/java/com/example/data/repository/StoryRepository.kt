@@ -58,6 +58,39 @@ class StoryRepository(
     }
 
     /**
+     * Mengambil daftar model dinamis dari Google Generative Language API
+     * URL: https://generativelanguage.googleapis.com/v1beta/models?key={$apiKey}
+     */
+    suspend fun fetchAvailableModels(customApiKey: String? = null): Result<List<String>> = withContext(Dispatchers.IO) {
+        val keys = ApiKeyManager.getAllAvailableKeys(customApiKey)
+        if (keys.isEmpty()) {
+            return@withContext Result.success(StoryPromptConfig.AVAILABLE_MODELS)
+        }
+        val apiKey = ApiKeyManager.getNextApiKey(customApiKey)
+        try {
+            val response = apiService.listModels(apiKey = apiKey, pageSize = 100)
+            val filteredModels = response.models
+                .orEmpty()
+                .filter { modelInfo ->
+                    modelInfo.supportedGenerationMethods?.contains("generateContent") == true
+                }
+                .map { modelInfo ->
+                    modelInfo.name.removePrefix("models/")
+                }
+                .filter { it.contains("gemini", ignoreCase = true) }
+                .distinct()
+
+            if (filteredModels.isNotEmpty()) {
+                Result.success(filteredModels)
+            } else {
+                Result.success(StoryPromptConfig.AVAILABLE_MODELS)
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
      * Mempersiapkan riwayat percakapan untuk Gemini API untuk cerita tertentu.
      */
     suspend fun getFormattedGeminiHistory(storyId: Long, limit: Int = 30): List<ContentPayload> = withContext(Dispatchers.IO) {
@@ -348,11 +381,7 @@ class StoryRepository(
                 return@withContext Result.success(fallbackIntro)
             }
 
-            val triggerPrompt = if (systemInstruction.isNotBlank() && systemInstruction != StoryPromptConfig.DEFAULT_CHATBOT_INSTRUCTION) {
-                "Mulai dan berikan narasi pembuka sesuai instruksi sistem."
-            } else {
-                "Berikan sapaan pembuka ramah untuk memulai obrolan."
-            }
+            val triggerPrompt = "Mulai"
 
             val request = GenerateContentRequest(
                 contents = listOf(

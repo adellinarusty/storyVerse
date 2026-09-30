@@ -35,9 +35,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -56,7 +53,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setupImmersiveFullscreen()
 
         setContent {
             MyApplicationTheme {
@@ -64,10 +60,7 @@ class MainActivity : ComponentActivity() {
                 DisposableEffect(lifecycleOwner) {
                     val observer = LifecycleEventObserver { _, event ->
                         when (event) {
-                            Lifecycle.Event.ON_RESUME -> {
-                                setupImmersiveFullscreen()
-                                viewModel.onResumeScreen()
-                            }
+                            Lifecycle.Event.ON_RESUME -> viewModel.onResumeScreen()
                             Lifecycle.Event.ON_PAUSE -> viewModel.onPauseScreen()
                             else -> {}
                         }
@@ -81,20 +74,6 @@ class MainActivity : ComponentActivity() {
                 StoryVerseApp(viewModel = viewModel)
             }
         }
-    }
-
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) {
-            setupImmersiveFullscreen()
-        }
-    }
-
-    private fun setupImmersiveFullscreen() {
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        val insetsController = WindowCompat.getInsetsController(window, window.decorView)
-        insetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        insetsController.hide(WindowInsetsCompat.Type.systemBars())
     }
 }
 

@@ -23,8 +23,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -809,9 +811,9 @@ fun ChatMessageBubble(
                 FormattedChatMessageText(
                     text = text,
                     modifier = Modifier.fillMaxWidth(),
-                    textColor = if (isUser) Color(0xFFF7F2FA) else Color(0xFFEFE9F5),
+                    textColor = Color(0xFFFFFFFF),
                     fontSize = 15.sp,
-                    lineHeight = 22.sp
+                    lineHeight = 23.sp
                 )
 
                 // Kartu Gambar Adegan di bawah respon teks
@@ -998,6 +1000,7 @@ fun ChatBottomInputBar(
         color = Color(0xE60D081B),
         modifier = Modifier
             .fillMaxWidth()
+            .navigationBarsPadding()
             .padding(horizontal = 10.dp, vertical = 6.dp),
         shape = RoundedCornerShape(20.dp)
     ) {
@@ -1066,7 +1069,9 @@ fun StoryTopBar(
 ) {
     Surface(
         color = Color(0xB30C071A),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .statusBarsPadding()
     ) {
         Row(
             modifier = Modifier

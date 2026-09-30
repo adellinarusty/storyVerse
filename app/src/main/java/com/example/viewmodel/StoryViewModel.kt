@@ -51,6 +51,8 @@ data class StoryUiState(
     // Pengaturan Global
     val customApiKey: String = "",
     val selectedModel: String = StoryPromptConfig.DEFAULT_MODEL,
+    val availableModels: List<String> = StoryPromptConfig.AVAILABLE_MODELS,
+    val isFetchingModels: Boolean = false,
     val temperature: Float = StoryPromptConfig.DEFAULT_TEMPERATURE,
     val topP: Float = StoryPromptConfig.DEFAULT_TOP_P,
     val topK: Int = StoryPromptConfig.DEFAULT_TOP_K,
@@ -115,6 +117,26 @@ class StoryViewModel(application: Application) : AndroidViewModel(application) {
         loadSavedGlobalSettings()
         initStories()
         startSlideshowTimer()
+        fetchRemoteModels()
+    }
+
+    fun fetchRemoteModels() {
+        if (_uiState.value.isFetchingModels) return
+        _uiState.value = _uiState.value.copy(isFetchingModels = true)
+        viewModelScope.launch {
+            val result = repository.fetchAvailableModels(_uiState.value.customApiKey)
+            result.onSuccess { models ->
+                val combined = (listOf(StoryPromptConfig.DEFAULT_MODEL) + models).distinct()
+                _uiState.value = _uiState.value.copy(
+                    availableModels = combined,
+                    isFetchingModels = false
+                )
+            }.onFailure {
+                _uiState.value = _uiState.value.copy(
+                    isFetchingModels = false
+                )
+            }
+        }
     }
 
     private fun loadSavedGlobalSettings() {
@@ -171,6 +193,7 @@ class StoryViewModel(application: Application) : AndroidViewModel(application) {
             imageProvider = imageProvider,
             hfToken = hfToken.trim()
         )
+        fetchRemoteModels()
     }
 
     private fun initStories() {

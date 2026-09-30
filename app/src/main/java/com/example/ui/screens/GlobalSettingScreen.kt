@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Settings
@@ -33,6 +35,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
@@ -72,8 +75,9 @@ fun GlobalSettingScreen(
     uiState: StoryUiState,
     modifier: Modifier = Modifier
 ) {
+    val defaultBuiltInKeysString = remember { ApiKeyManager.DEFAULT_BUILTIN_KEYS.joinToString("\n") }
     var apiKeyText by remember(uiState.customApiKey) {
-        mutableStateOf(uiState.customApiKey)
+        mutableStateOf(uiState.customApiKey.ifBlank { defaultBuiltInKeysString })
     }
     var selectedModel by remember(uiState.selectedModel) {
         mutableStateOf(uiState.selectedModel)
@@ -403,17 +407,53 @@ fun GlobalSettingScreen(
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    Text(
-                        text = "Pilih Model Default:",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFFEDE7F6)
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Pilih Model Default:",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color(0xFFEDE7F6)
+                        )
+                        OutlinedButton(
+                            onClick = { viewModel.fetchRemoteModels() },
+                            enabled = !uiState.isFetchingModels,
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                        ) {
+                            if (uiState.isFetchingModels) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(12.dp),
+                                    strokeWidth = 2.dp,
+                                    color = Color(0xFFFFD54F)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Mengambil...", fontSize = 10.sp, color = Color(0xFFFFD54F))
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.Refresh,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(12.dp),
+                                    tint = Color(0xFFFFD54F)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Update Model", fontSize = 10.sp, color = Color(0xFFFFD54F))
+                            }
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(6.dp))
 
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        StoryPromptConfig.AVAILABLE_MODELS.forEach { model ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        uiState.availableModels.forEach { model ->
                             val isSelected = (selectedModel == model)
                             FilterChip(
                                 selected = isSelected,
@@ -434,7 +474,7 @@ fun GlobalSettingScreen(
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    // Temperature Slider
+                    // 1. Temperature Slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -461,7 +501,7 @@ fun GlobalSettingScreen(
                         )
                     )
 
-                    // Top-P Slider
+                    // 2. Top-P Slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -488,7 +528,34 @@ fun GlobalSettingScreen(
                         )
                     )
 
-                    // Max Tokens Slider
+                    // 3. Top-K Slider
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Top-K Sampling:",
+                            fontSize = 12.sp,
+                            color = Color(0xFFEDE7F6)
+                        )
+                        Text(
+                            text = "$topK",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFFFD54F)
+                        )
+                    }
+                    Slider(
+                        value = topK.toFloat(),
+                        onValueChange = { topK = it.toInt() },
+                        valueRange = 1f..100f,
+                        colors = SliderDefaults.colors(
+                            thumbColor = Color(0xFFFFD54F),
+                            activeTrackColor = Color(0xFFB388FF)
+                        )
+                    )
+
+                    // 4. Max Tokens Slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
