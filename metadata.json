@@ -1,0 +1,6 @@
+{
+  "name": "StoryVerse",
+  "description": "Interactive AI Visual Novel & Storyboard with dynamic Gemini narrative engine, media slideshow, and ambient BGM.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
