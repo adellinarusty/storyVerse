@@ -123,7 +123,7 @@ class StoryRepository(
     ): String {
         val keys = ApiKeyManager.getAllAvailableKeys(customApiKeyText)
         if (keys.isEmpty()) {
-            throw IllegalStateException("API Key Gemini belum disetel. Masukkan satu atau beberapa API Key di tab System Instruction.")
+            throw IllegalStateException("API Key Gemini belum diatur. Silakan masukkan API Key Anda di menu Pengaturan Global (ikon gerigi).")
         }
 
         var lastException: Exception? = null
@@ -142,17 +142,21 @@ class StoryRepository(
             } catch (e: Exception) {
                 lastException = e
                 val errorMsg = e.message.orEmpty()
+                if (errorMsg.contains("reported as leaked", ignoreCase = true) || errorMsg.contains("leaked", ignoreCase = true)) {
+                    lastException = IllegalStateException("API Key terdeteksi bocor/tidak valid oleh Google. Silakan buat kunci baru di aistudio.google.com/apikey dan simpan di Pengaturan Global.")
+                }
                 if (keys.size > 1 && (
                     errorMsg.contains("429") ||
                     errorMsg.contains("RESOURCE_EXHAUSTED") ||
                     errorMsg.contains("quota", ignoreCase = true) ||
                     errorMsg.contains("rate", ignoreCase = true) ||
                     errorMsg.contains("403") ||
-                    errorMsg.contains("API_KEY_INVALID")
+                    errorMsg.contains("API_KEY_INVALID") ||
+                    errorMsg.contains("leaked", ignoreCase = true)
                 )) {
                     continue
                 } else {
-                    throw e
+                    throw lastException ?: e
                 }
             }
         }
@@ -373,7 +377,7 @@ class StoryRepository(
                 val fallbackIntro = StoryMessage(
                     storyId = storyId,
                     role = "model",
-                    content = "Halo! Silakan masukkan satu atau beberapa API Key Gemini Anda di tab System Instruction agar saya dapat merespons sesuai konfigurasi.",
+                    content = "Halo! API Key Gemini belum diatur. Silakan buka menu Pengaturan Global (ikon gerigi) dan masukkan API Key Anda untuk mulai bermain cerita.",
                     timestamp = System.currentTimeMillis()
                 )
                 storyDao.insertMessage(fallbackIntro)

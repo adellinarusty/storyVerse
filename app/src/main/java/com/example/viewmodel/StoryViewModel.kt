@@ -209,6 +209,14 @@ class StoryViewModel(application: Application) : AndroidViewModel(application) {
         _uiState.value = _uiState.value.copy(mainTab = tab)
     }
 
+    fun navigateToGlobalSettings() {
+        _uiState.value = _uiState.value.copy(
+            currentScreen = AppScreen.STORY_LIST,
+            mainTab = MainScreenTab.GLOBAL_SETTINGS,
+            errorMessage = null
+        )
+    }
+
     /**
      * Membuka cerita tertentu dari daftar cerita dan beralih ke Mode Chat bersih
      */

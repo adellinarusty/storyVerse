@@ -234,6 +234,12 @@ fun StoryScreen(
                         fontSize = 13.sp,
                         modifier = Modifier.weight(1f)
                     )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    if (error.contains("API Key", ignoreCase = true) || error.contains("bocor", ignoreCase = true)) {
+                        TextButton(onClick = { viewModel.navigateToGlobalSettings() }) {
+                            Text("Buka Pengaturan", color = Color(0xFFFFD54F), fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        }
+                    }
                     TextButton(onClick = { viewModel.clearErrorMessage() }) {
                         Text("Tutup", color = Color(0xFFFFDAD6))
                     }

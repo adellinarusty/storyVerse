@@ -75,9 +75,8 @@ fun GlobalSettingScreen(
     uiState: StoryUiState,
     modifier: Modifier = Modifier
 ) {
-    val defaultBuiltInKeysString = remember { ApiKeyManager.DEFAULT_BUILTIN_KEYS.joinToString("\n") }
     var apiKeyText by remember(uiState.customApiKey) {
-        mutableStateOf(uiState.customApiKey.ifBlank { defaultBuiltInKeysString })
+        mutableStateOf(uiState.customApiKey)
     }
     var selectedModel by remember(uiState.selectedModel) {
         mutableStateOf(uiState.selectedModel)
@@ -184,7 +183,7 @@ fun GlobalSettingScreen(
                             color = if (parsedKeys.isNotEmpty()) Color(0x3300E676) else Color(0x33FFB300)
                         ) {
                             Text(
-                                text = if (parsedKeys.isNotEmpty()) "${parsedKeys.size} Kunci Siap" else "Menggunakan Default",
+                                text = if (parsedKeys.isNotEmpty()) "${parsedKeys.size} Kunci Siap (Lokal)" else "Belum Ada Kunci",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = if (parsedKeys.isNotEmpty()) Color(0xFF69F0AE) else Color(0xFFFFD54F),
@@ -196,10 +195,18 @@ fun GlobalSettingScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "Masukkan satu atau banyak API Key Gemini (pisahkan baris baru atau koma). Aplikasi akan merotasi kunci secara bergantian di tiap pesan agar kuota token tidak cepat habis.",
+                        text = "Kunci disimpan secara privat di penyimpanan lokal (SharedPreferences) perangkat Anda, tanpa di-hardcode ke APK. Masukkan satu atau banyak API Key Gemini (pisahkan baris baru atau koma) untuk rotasi kuota otomatis.",
                         fontSize = 11.sp,
                         color = Color(0xFFC7B9E5),
                         lineHeight = 16.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Text(
+                        text = "💡 Dapatkan API Key gratis di: aistudio.google.com/apikey",
+                        fontSize = 11.sp,
+                        color = Color(0xFFFFD54F)
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
@@ -213,7 +220,7 @@ fun GlobalSettingScreen(
                             .testTag("global_api_key_input"),
                         placeholder = {
                             Text(
-                                "AIzaSyA...\nAIzaSyB...\nAIzaSyC...",
+                                "Tempel satu atau kumpulan API Key di sini...\nContoh:\nAIzaSy...\nAIzaSy...",
                                 fontSize = 12.sp,
                                 color = Color(0x66C7B9E5)
                             )

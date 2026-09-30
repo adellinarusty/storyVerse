@@ -14,31 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger
 object ApiKeyManager {
     private val keyRotationIndex = AtomicInteger(0)
 
-    val DEFAULT_BUILTIN_KEYS = listOf(
-        "AIzaSyD9Bw7CW-eZeblrDT0Kpx_AmcvxILvypMs",
-        "AIzaSyAasK7Oym4rsUbqoOo-6TjdqxcozPFNXGw",
-        "AIzaSyAanLBZmS2-rO_o0VcFEUBKXO9u5EMuMAA",
-        "AIzaSyBaru6Vlwty6m0Kj1ZadxhcQFHBhTxeoRs",
-        "AIzaSyBNhP5f0jnjRgP1WIbfSkREFFvSTMcrU7U",
-        "AIzaSyBbKDYPWVilemzH0EDAWwARZx2GsLDnf7c",
-        "AIzaSyAeUr7MYgQr3iwKBhtp6RfFmL-aSkMYlTM",
-        "AIzaSyAL6beRSui_8_6WBS8tX9adkkfF38FBPzg",
-        "AIzaSyDyvRAxWv0jQwP_L0UtpdLdN2_zafla3CU",
-        "AIzaSyCi9jf12AO5qd4W_lzr8HYKoPbfjW_Ch9s",
-        "AIzaSyDCK1pDdOgkHr2xkjQyj7YE-A2Xoi57AKo",
-        "AIzaSyDhtrWD53QpKR4y1IygGVMWPAZETOxflSI",
-        "AIzaSyDDXbGsYaANpCz9MEYe62-Dno76FhIV5vQ",
-        "AIzaSyAk6DC3VBGeHpkMzF3WZWtgEjcXs95_0SA",
-        "AIzaSyCFfH31LMXJVqD2_zpaaZGyfS0ZQK-6szU",
-        "AIzaSyAw40rhBCZ2FFW7xfYdmrUKF9jct-Ytk_U",
-        "AIzaSyDVGY6AerVr_EpmTYwkLSRSOjf3OFmyTM4",
-        "AIzaSyCw_efpIRxS5KRhmBR3t4JGz081JKhAXFE",
-        "AIzaSyBPkZc912PPt2LzuMzgVa9QEeUxtmk-Sns",
-        "AIzaSyCRg_Q1jCgrbVmVM9Yq9W6NpQ5EL2gDWgE",
-        "AIzaSyAjGL59TzyBkUPMEbg62zft91KgIwqHrr4",
-        "AIzaSyB7k8v3jX-Kl8TxQXF7jj6nc7h9UurBQ9A",
-        "AIzaSyAyUMHgs2taWsvZRC1j_QrdpPbgDwn6bsE"
-    )
+    val DEFAULT_BUILTIN_KEYS: List<String> = emptyList()
 
     fun parseKeys(rawKeysText: String?): List<String> {
         if (rawKeysText.isNullOrBlank()) return emptyList()
@@ -57,7 +33,7 @@ object ApiKeyManager {
         if (buildKey.isNotBlank() && !buildKey.contains("MY_GEMINI_API_KEY") && !buildKey.contains("your_api_key_here")) {
             return listOf(buildKey.trim())
         }
-        return DEFAULT_BUILTIN_KEYS
+        return emptyList()
     }
 
     fun getNextApiKey(rawKeysText: String?): String {

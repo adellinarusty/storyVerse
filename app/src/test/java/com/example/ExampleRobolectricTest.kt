@@ -59,25 +59,25 @@ class ExampleRobolectricTest {
   @Test
   fun `verify multi key parsing and rolling round robin`() {
     val rawKeys = """
-      AIzaSyKeyOne
-      AIzaSyKeyTwo, AIzaSyKeyThree
+      mock_gemini_key_one
+      mock_gemini_key_two, mock_gemini_key_three
       
-      AIzaSyKeyOne
+      mock_gemini_key_one
     """.trimIndent()
     val parsed = ApiKeyManager.parseKeys(rawKeys)
     assertEquals(3, parsed.size)
-    assertEquals("AIzaSyKeyOne", parsed[0])
-    assertEquals("AIzaSyKeyTwo", parsed[1])
-    assertEquals("AIzaSyKeyThree", parsed[2])
+    assertEquals("mock_gemini_key_one", parsed[0])
+    assertEquals("mock_gemini_key_two", parsed[1])
+    assertEquals("mock_gemini_key_three", parsed[2])
 
     val key1 = ApiKeyManager.getNextApiKey(rawKeys)
     val key2 = ApiKeyManager.getNextApiKey(rawKeys)
     val key3 = ApiKeyManager.getNextApiKey(rawKeys)
     val key4 = ApiKeyManager.getNextApiKey(rawKeys)
 
-    assertTrue(listOf("AIzaSyKeyOne", "AIzaSyKeyTwo", "AIzaSyKeyThree").contains(key1))
-    assertTrue(listOf("AIzaSyKeyOne", "AIzaSyKeyTwo", "AIzaSyKeyThree").contains(key2))
-    assertTrue(listOf("AIzaSyKeyOne", "AIzaSyKeyTwo", "AIzaSyKeyThree").contains(key3))
+    assertTrue(listOf("mock_gemini_key_one", "mock_gemini_key_two", "mock_gemini_key_three").contains(key1))
+    assertTrue(listOf("mock_gemini_key_one", "mock_gemini_key_two", "mock_gemini_key_three").contains(key2))
+    assertTrue(listOf("mock_gemini_key_one", "mock_gemini_key_two", "mock_gemini_key_three").contains(key3))
     assertEquals(key1, key4)
   }
 
